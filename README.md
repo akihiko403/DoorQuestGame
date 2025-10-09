@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🚪 Door Quiz Game
 
 An interactive quiz game where you click on doors to reveal questions and answers!
@@ -59,3 +60,7 @@ You can customize the game by:
 - Changing the color scheme in `src/App.vue`
 
 Enjoy the game! 🎉
+=======
+# DoorQuestGame
+website game for question and answer
+>>>>>>> 309f91537b876ce000e6367e589146b7cf01bafe
