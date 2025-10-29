@@ -2,40 +2,107 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import Door from './components/Door.vue'
 import QuestionManager from './components/QuestionManager.vue'
+import SpinWheel from './components/SpinWheel.vue'
+import QuizCard from './components/QuizCard.vue'
+import DragMatch from './components/DragMatch.vue'
 
-const currentPage = ref('game')
+const currentPage = ref('landing')
 const showMenu = ref(false)
 const showWelcome = ref(true)
+
+// Door Quest questions
 const questions = ref([
   {
     id: 1,
-    question: 'Getting enough sleep and exercise are examples of taking care of your physical health.',
+    question: 'Respecting others helps build strong relationships.',
     answer: 'TRUE'
   },
   {
     id: 2,
-    question: 'Eating juckfood daily is an example of good physical health practice.',
+    question: 'Skipping breakfast gives you more energy for the day.',
     answer: 'FALSE'
   },
   {
     id: 3,
-    question: 'Hollistic health only means being free form sickness or disease.',
-    answer: 'FALSE'
+    question: 'Talking about your feelings can help reduce stress.',
+    answer: 'TRUE'
   },
   {
     id: 4,
-    question: 'People with good spirittual health never face problems.',
+    question: '. Watching TV for long hours improves your physical fitness.',
     answer: 'FALSE'
   },
   {
     id: 5,
-    question: 'Thingking positively and managing stress are signs of good mental health.',
+    question: 'Getting enough sleep helps your body recover and stay healthy.',
     answer: 'TRUE'
   },
+  
+])
+
+// Quiz Card questions (separate from Door Quest)
+const quizQuestions = ref([
+  // Part 1: Identification (Multiple Choice)
+  {
+    id: 1,
+    question: 'It refers to the overall condition of a person\'s body and how well it functions.',
+    options: ['Physical Health', 'Mental Health', 'Emotional Health', 'Social Health'],
+    correctAnswer: 'Physical Health'
+  },
+  {
+    id: 2,
+    question: 'It is the ability to manage and express emotions in a healthy way.',
+    options: ['Emotional Health', 'Physical Health', 'Mental Health', 'Social Health'],
+    correctAnswer: 'Emotional Health'
+  },
+  {
+    id: 3,
+    question: 'This dimension involves building positive relationships and interacting well with others.',
+    options: ['Social Health', 'Physical Health', 'Mental Health', 'Emotional Health'],
+    correctAnswer: 'Social Health'
+  },
+  {
+    id: 4,
+    question: 'It means finding purpose and inner peace in life through faith, beliefs, or values.',
+    options: ['Spiritual Health', 'Mental Health', 'Emotional Health', 'Physical Health'],
+    correctAnswer: 'Spiritual Health'
+  },
+  {
+    id: 5,
+    question: 'It is the dimension that deals with how a person thinks, learns, and makes decisions.',
+    options: ['Mental Health', 'Physical Health', 'Emotional Health', 'Social Health'],
+    correctAnswer: 'Mental Health'
+  },
+  // Part 2: TRUE/FALSE
   {
     id: 6,
-    question: 'Mental health  refers to the way a personn thinks, learns, and handles stress.',
-    answer: 'TRUE'
+    question: 'Holistic health focuses only on the physical aspect of a person.',
+    options: ['TRUE', 'FALSE'],
+    correctAnswer: 'FALSE'
+  },
+  {
+    id: 7,
+    question: 'Creating a slogan about wellness helps express awareness of holistic health.',
+    options: ['TRUE', 'FALSE'],
+    correctAnswer: 'TRUE'
+  },
+  {
+    id: 8,
+    question: 'Emotional health includes being able to cope with stress and control feelings.',
+    options: ['TRUE', 'FALSE'],
+    correctAnswer: 'TRUE'
+  },
+  {
+    id: 9,
+    question: 'Balancing all dimensions of health helps achieve overall well-being.',
+    options: ['TRUE', 'FALSE'],
+    correctAnswer: 'TRUE'
+  },
+  {
+    id: 10,
+    question: 'Working with others in group activities can improve social health.',
+    options: ['TRUE', 'FALSE'],
+    correctAnswer: 'TRUE'
   }
 ])
 
@@ -47,9 +114,19 @@ const closeMenu = () => {
   showMenu.value = false
 }
 
+const goToLanding = () => {
+  showMenu.value = false
+  currentPage.value = 'landing'
+}
+
 const goToManager = () => {
   showMenu.value = false
   currentPage.value = 'manager'
+}
+
+const goToSpinWheel = () => {
+  showMenu.value = false
+  currentPage.value = 'spinner'
 }
 
 const goToGame = (updatedQuestions) => {
@@ -60,6 +137,33 @@ const goToGame = (updatedQuestions) => {
   currentPage.value = 'game'
   // Show welcome popup when going to game from question manager
   showWelcome.value = true
+}
+
+const startDoorQuest = () => {
+  showWelcome.value = true
+  currentPage.value = 'game'
+}
+
+const startSpinWheel = () => {
+  currentPage.value = 'spinner'
+}
+
+const startQuizCard = () => {
+  currentPage.value = 'quiz'
+}
+
+const goToQuiz = () => {
+  showMenu.value = false
+  currentPage.value = 'quiz'
+}
+
+const startDragMatch = () => {
+  currentPage.value = 'dragmatch'
+}
+
+const goToDragMatch = () => {
+  showMenu.value = false
+  currentPage.value = 'dragmatch'
 }
 
 const updateQuestions = (updatedQuestions) => {
@@ -106,6 +210,81 @@ const startGame = () => {
 
 <template>
   <div class="app">
+    <!-- Landing Page -->
+    <div v-if="currentPage === 'landing'" class="landing-page">
+      <!-- Floating Decorations -->
+      <div class="floating-decorations">
+        <div class="decoration decoration-1">🚪</div>
+        <div class="decoration decoration-2">🎡</div>
+        <div class="decoration decoration-3">📝</div>
+        <div class="decoration decoration-4">🚪</div>
+        <div class="decoration decoration-5">🎡</div>
+        <div class="decoration decoration-6">📝</div>
+      </div>
+
+      <header class="landing-header">
+        <h1>🎮 GAME HUB 🎮</h1>
+        <p class="landing-subtitle">Choose Your Adventure!</p>
+        <p class="landing-description">
+          Welcome to Game Hub! Pick a game and let the fun begin.
+        </p>
+      </header>
+
+      <div class="games-container">
+        <!-- Door Quest Card -->
+        <div class="game-card" @click="startDoorQuest">
+          <div class="game-icon door-icon">🚪</div>
+          <h2 class="game-title">DOOR QUEST</h2>
+          <p class="game-description">
+            Open doors, answer questions, and win prizes in this exciting quiz adventure!
+          </p>
+          <button class="play-button">
+            <span class="btn-icon">▶️</span>
+            <span class="btn-text">Play Now</span>
+          </button>
+        </div>
+
+        <!-- Spin the Wheel Card -->
+        <div class="game-card" @click="startSpinWheel">
+          <div class="game-icon wheel-icon">🎡</div>
+          <h2 class="game-title">SPIN THE WHEEL</h2>
+          <p class="game-description">
+            Spin the wheel to randomly select a winner from your list of names!
+          </p>
+          <button class="play-button">
+            <span class="btn-icon">▶️</span>
+            <span class="btn-text">Play Now</span>
+          </button>
+        </div>
+
+        <!-- Quiz Card -->
+        <div class="game-card" @click="startQuizCard">
+          <div class="game-icon quiz-icon">📝</div>
+          <h2 class="game-title">QUIZ CARD</h2>
+          <p class="game-description">
+            Test your knowledge, track your score, and compete for the top spot on the leaderboard!
+          </p>
+          <button class="play-button">
+            <span class="btn-icon">▶️</span>
+            <span class="btn-text">Play Now</span>
+          </button>
+        </div>
+
+        <!-- Drag & Drop Match Card -->
+        <div class="game-card" @click="startDragMatch">
+          <div class="game-icon match-icon">🎯</div>
+          <h2 class="game-title">DRAG & MATCH</h2>
+          <p class="game-description">
+            Drag health images to their matching boxes. Green for correct, red for wrong!
+          </p>
+          <button class="play-button">
+            <span class="btn-icon">▶️</span>
+            <span class="btn-text">Play Now</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div v-if="currentPage === 'game'" class="game-page">
       <!-- Floating Door Decorations -->
       <div class="floating-doors">
@@ -129,8 +308,20 @@ const startGame = () => {
           </button>
           
           <div class="dropdown-menu" :class="{ 'show': showMenu }">
+            <button class="dropdown-item" @click="goToLanding">
+              🏠 Home
+            </button>
             <button class="dropdown-item" @click="goToManager">
               📚 Manage Questions
+            </button>
+            <button class="dropdown-item" @click="goToSpinWheel">
+              🎡 Spin The Wheel
+            </button>
+            <button class="dropdown-item" @click="goToQuiz">
+              📝 Quiz Card
+            </button>
+            <button class="dropdown-item" @click="goToDragMatch">
+              🎯 Drag & Match
             </button>
           </div>
         </div>
@@ -180,10 +371,18 @@ const startGame = () => {
               </div>
               
               <div class="feature-item">
+                <span class="feature-icon">🎯</span>
+                <div class="feature-text">
+                  <strong>Pick Your Answer</strong>
+                  <p>Select TRUE or FALSE to make your choice</p>
+                </div>
+              </div>
+              
+              <div class="feature-item">
                 <span class="feature-icon">✨</span>
                 <div class="feature-text">
-                  <strong>Reveal Answer</strong>
-                  <p>Click the button to see if you're correct!</p>
+                  <strong>See Results</strong>
+                  <p>Check if you got it right!</p>
                 </div>
               </div>
               
@@ -222,6 +421,18 @@ const startGame = () => {
 
     <div v-else-if="currentPage === 'manager'" class="manager-page">
       <QuestionManager :questions="questions" @goToGame="goToGame" @updateQuestions="updateQuestions" />
+    </div>
+
+    <div v-else-if="currentPage === 'spinner'" class="spinner-page">
+      <SpinWheel @goToGame="goToLanding" />
+    </div>
+
+    <div v-else-if="currentPage === 'quiz'" class="quiz-page">
+      <QuizCard :quizQuestions="quizQuestions" @goToGame="goToLanding" />
+    </div>
+
+    <div v-else-if="currentPage === 'dragmatch'" class="dragmatch-page">
+      <DragMatch @goToGame="goToLanding" />
     </div>
   </div>
 </template>
@@ -522,6 +733,16 @@ const startGame = () => {
 
 .manager-page {
   height: 100vh;
+  overflow: hidden;
+}
+
+.spinner-page {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.quiz-page {
+  height: 100dvh;
   overflow: hidden;
 }
 
@@ -1380,6 +1601,413 @@ const startGame = () => {
 @media (max-width: 768px) {
   * {
     touch-action: manipulation;
+  }
+}
+
+/* ========================================
+   LANDING PAGE STYLES
+   ======================================== */
+
+.landing-page {
+  min-height: 100vh;
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+.landing-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  animation: background-glow 8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Floating Decorations */
+.floating-decorations {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.decoration {
+  position: absolute;
+  font-size: 80px;
+  opacity: 0.3;
+  animation: float-deco 6s ease-in-out infinite;
+}
+
+.decoration-1 {
+  top: 10%;
+  left: 8%;
+  animation-delay: 0s;
+}
+
+.decoration-2 {
+  top: 15%;
+  right: 10%;
+  animation-delay: 1s;
+}
+
+.decoration-3 {
+  bottom: 20%;
+  left: 15%;
+  animation-delay: 2s;
+}
+
+.decoration-4 {
+  bottom: 25%;
+  right: 12%;
+  animation-delay: 3s;
+}
+
+.decoration-5 {
+  top: 50%;
+  left: 5%;
+  animation-delay: 4s;
+}
+
+.decoration-6 {
+  top: 70%;
+  right: 8%;
+  animation-delay: 5s;
+}
+
+@keyframes float-deco {
+  0%, 100% { 
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.2;
+  }
+  50% { 
+    transform: translateY(-30px) rotate(10deg);
+    opacity: 0.4;
+  }
+}
+
+/* Landing Header */
+.landing-header {
+  text-align: center;
+  margin-bottom: 50px;
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+}
+
+.landing-header h1 {
+  font-size: 56px;
+  font-weight: 900;
+  color: white;
+  text-shadow: 
+    -2px -2px 0 #000,
+    2px -2px 0 #000,
+    -2px 2px 0 #000,
+    2px 2px 0 #000,
+    3px 3px 8px rgba(0, 0, 0, 0.4);
+  margin-bottom: 20px;
+  animation: title-bounce 3s ease-in-out infinite;
+}
+
+@keyframes title-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.landing-subtitle {
+  font-size: 28px;
+  color: #FFD700;
+  font-weight: 700;
+  margin-bottom: 15px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.landing-description {
+  font-size: 18px;
+  color: white;
+  opacity: 0.95;
+  font-weight: 500;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Games Container */
+.games-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 40px;
+  max-width: 1000px;
+  width: 100%;
+  position: relative;
+  z-index: 2;
+}
+
+/* Game Card */
+.game-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 30px;
+  padding: 40px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  border: 4px solid #FFD700;
+  box-shadow: 
+    0 20px 50px rgba(0, 0, 0, 0.3),
+    0 0 0 4px #FF9800,
+    0 0 0 8px #E91E63;
+  position: relative;
+  overflow: hidden;
+  animation: card-entrance 0.6s ease forwards;
+  opacity: 0;
+}
+
+.game-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.game-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+@keyframes card-entrance {
+  from {
+    opacity: 0;
+    transform: translateY(50px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.game-card:hover {
+  transform: translateY(-10px) scale(1.05);
+  box-shadow: 
+    0 30px 70px rgba(0, 0, 0, 0.4),
+    0 0 0 4px #FFA500,
+    0 0 0 8px #FF5722,
+    0 0 0 12px #2196F3;
+}
+
+.game-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.6s ease;
+}
+
+.game-card:hover::before {
+  left: 100%;
+}
+
+.game-icon {
+  font-size: 100px;
+  margin-bottom: 20px;
+  animation: icon-float 3s ease-in-out infinite;
+  display: inline-block;
+}
+
+.door-icon {
+  animation: icon-bounce 2s ease-in-out infinite;
+}
+
+@keyframes icon-bounce {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(5deg); }
+}
+
+.wheel-icon {
+  animation: icon-spin-float 3s ease-in-out infinite;
+}
+
+@keyframes icon-spin-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(15deg); }
+}
+
+.quiz-icon {
+  animation: icon-quiz-float 2.5s ease-in-out infinite;
+}
+
+@keyframes icon-quiz-float {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-12px) scale(1.1); }
+}
+
+.game-title {
+  font-size: 36px;
+  font-weight: 900;
+  color: #2c3e50;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 0px #FFD700, 4px 4px 0px rgba(0, 0, 0, 0.2);
+}
+
+.game-description {
+  font-size: 16px;
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 30px;
+  font-weight: 500;
+}
+
+.play-button {
+  width: 100%;
+  padding: 20px;
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #2c3e50;
+  border: 4px solid #FF5722;
+  border-radius: 20px;
+  font-size: 22px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 65px;
+}
+
+.play-button:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 15px 40px rgba(255, 215, 0, 0.6);
+  background: linear-gradient(135deg, #FFA500, #FFD700);
+}
+
+.play-button .btn-icon {
+  font-size: 26px;
+}
+
+.play-button .btn-text {
+  font-size: 18px;
+}
+
+/* Landing Page Responsive */
+@media (max-width: 1024px) {
+  .games-container {
+    grid-template-columns: 1fr;
+    max-width: 600px;
+  }
+}
+
+@media (max-width: 768px) {
+  .landing-page {
+    padding: 30px 15px;
+  }
+
+  .landing-header h1 {
+    font-size: 36px;
+  }
+
+  .landing-subtitle {
+    font-size: 22px;
+  }
+
+  .landing-description {
+    font-size: 16px;
+  }
+
+  .games-container {
+    gap: 30px;
+  }
+
+  .game-card {
+    padding: 30px 20px;
+  }
+
+  .game-icon {
+    font-size: 80px;
+  }
+
+  .game-title {
+    font-size: 28px;
+  }
+
+  .game-description {
+    font-size: 14px;
+    margin-bottom: 25px;
+  }
+
+  .play-button {
+    padding: 16px;
+    font-size: 18px;
+    min-height: 60px;
+  }
+
+  .decoration {
+    font-size: 60px;
+  }
+}
+
+@media (max-width: 480px) {
+  .landing-header h1 {
+    font-size: 28px;
+  }
+
+  .landing-subtitle {
+    font-size: 18px;
+  }
+
+  .landing-description {
+    font-size: 14px;
+  }
+
+  .game-card {
+    padding: 25px 15px;
+    border-radius: 20px;
+  }
+
+  .game-icon {
+    font-size: 60px;
+  }
+
+  .game-title {
+    font-size: 24px;
+  }
+
+  .game-description {
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+
+  .play-button {
+    padding: 14px;
+    font-size: 16px;
+    min-height: 55px;
+  }
+
+  .play-button .btn-icon {
+    font-size: 20px;
+  }
+
+  .play-button .btn-text {
+    font-size: 14px;
+  }
+
+  .decoration {
+    font-size: 50px;
   }
 }
 

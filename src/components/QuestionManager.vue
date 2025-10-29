@@ -145,12 +145,47 @@
           </button>
         </div>
         </section>
+
+        <!-- Quiz Scores -->
+      <section v-if="activeSection === 'quizscores'" class="section-container">
+        <h2 class="section-title">🏆 Quiz Card Scores Management</h2>
+        <div class="quiz-scores-content">
+          <div class="info-box">
+            <div class="info-icon">ℹ️</div>
+            <div class="info-text">
+              <h3>Manage Quiz Card Leaderboard</h3>
+              <p>This section allows you to clear all Quiz Card scores and reset the leaderboard. This action cannot be undone.</p>
+            </div>
+          </div>
+
+          <div class="stats-display">
+            <div class="stat-item">
+              <div class="stat-icon-large">📝</div>
+              <div class="stat-content">
+                <div class="stat-number">{{ quizScoresCount }}</div>
+                <div class="stat-text">Total Scores</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="danger-zone">
+            <h3 class="danger-title">⚠️ Danger Zone</h3>
+            <p class="danger-description">
+              Clearing all scores will permanently delete all Quiz Card leaderboard entries. Students who have taken the quiz will be able to retake it.
+            </p>
+            <button @click="clearQuizScores" class="danger-button">
+              <span class="btn-icon">🗑️</span>
+              <span class="btn-text">Clear All Quiz Scores</span>
+            </button>
+          </div>
+        </div>
+      </section>
       </main>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, defineProps, defineEmits, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 
 const props = defineProps({
   questions: {
@@ -174,7 +209,8 @@ const navItems = [
   { label: 'Statistics', key: 'statistics', icon: '📊' },
   { label: 'Add New', key: 'add', icon: '➕' },
   { label: 'Questions', key: 'questions', icon: '📋' },
-  { label: 'Play Game', key: 'playgame', icon: '🎮' }
+  { label: 'Play Game', key: 'playgame', icon: '🎮' },
+  { label: 'Quiz Scores', key: 'quizscores', icon: '🏆' }
 ]
 
 const stats = computed(() => [
@@ -224,6 +260,28 @@ function renumberQuestions() {
     ...question,
     id: index + 1
   }))
+}
+
+// Quiz Scores Management
+const quizScoresCount = computed(() => {
+  try {
+    const scores = JSON.parse(localStorage.getItem('quizCardScores') || '[]')
+    return scores.length
+  } catch (error) {
+    return 0
+  }
+})
+
+function clearQuizScores() {
+  if (confirm('⚠️ Are you sure you want to clear ALL Quiz Card scores?\n\nThis will:\n• Delete all leaderboard entries\n• Allow students to retake the quiz\n• Cannot be undone\n\nProceed?')) {
+    try {
+      localStorage.removeItem('quizCardScores')
+      alert('✅ All Quiz Card scores have been cleared successfully!')
+    } catch (error) {
+      console.error('Error clearing quiz scores:', error)
+      alert('❌ Error clearing scores. Please try again.')
+    }
+  }
 }
 </script>
 
@@ -804,6 +862,135 @@ function renumberQuestions() {
   color: #555;
   font-weight: 600;
   margin-bottom: 30px;
+}
+
+/* Quiz Scores Section */
+.quiz-scores-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.info-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 25px;
+  background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+  border-left: 5px solid #2196F3;
+  border-radius: 16px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.2);
+}
+
+.info-icon {
+  font-size: 40px;
+  flex-shrink: 0;
+}
+
+.info-text h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1976D2;
+  margin: 0 0 10px 0;
+}
+
+.info-text p {
+  font-size: 16px;
+  color: #555;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.stats-display {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 30px 40px;
+  background: linear-gradient(135deg, #FFF9E6, #FFE4B5);
+  border: 4px solid #FFD700;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);
+}
+
+.stat-icon-large {
+  font-size: 60px;
+}
+
+.stat-content {
+  text-align: left;
+}
+
+.stat-number {
+  font-size: 48px;
+  font-weight: 900;
+  color: #FF9800;
+  line-height: 1;
+  margin-bottom: 5px;
+}
+
+.stat-text {
+  font-size: 16px;
+  color: #666;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.danger-zone {
+  padding: 30px;
+  background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
+  border: 4px solid #F44336;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(244, 67, 54, 0.3);
+}
+
+.danger-title {
+  font-size: 24px;
+  font-weight: 900;
+  color: #C62828;
+  margin: 0 0 15px 0;
+}
+
+.danger-description {
+  font-size: 16px;
+  color: #666;
+  margin: 0 0 25px 0;
+  line-height: 1.6;
+}
+
+.danger-button {
+  padding: 18px 40px;
+  background: linear-gradient(135deg, #F44336, #D32F2F);
+  color: white;
+  border: 4px solid #C62828;
+  border-radius: 16px;
+  font-size: 18px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 8px 20px rgba(244, 67, 54, 0.4);
+}
+
+.danger-button:hover {
+  background: linear-gradient(135deg, #D32F2F, #B71C1C);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(244, 67, 54, 0.6);
+}
+
+.danger-button:active {
+  transform: translateY(-1px);
 }
 
 /* Animations */

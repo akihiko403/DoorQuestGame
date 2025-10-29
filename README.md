@@ -1,19 +1,26 @@
-# 🚪 Door Quest - Interactive Educational Game
+# 🎮 Game Hub - Interactive Game Collection
 
-**Door Quest** is a vibrant, student-friendly educational quiz application that transforms learning into an exciting adventure! Players click on colorful doors to reveal questions and test their knowledge in a fun, interactive environment.
+**Game Hub** is a vibrant, all-in-one game platform featuring two exciting experiences! Choose between **Door Quest** for an interactive quiz adventure, or **Spin the Wheel** for random selection fun. Both games offer beautiful designs, smooth animations, and responsive layouts.
 
-![Door Quest Game](https://img.shields.io/badge/Game-Door%20Quest-brightgreen) ![Vue.js](https://img.shields.io/badge/Vue.js-3.4.21-4FC08D) ![Vite](https://img.shields.io/badge/Vite-7.1.9-646CFF) ![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.4.18-38B2AC)
+![Game Hub](https://img.shields.io/badge/Game-Game%20Hub-brightgreen) ![Vue.js](https://img.shields.io/badge/Vue.js-3.4.21-4FC08D) ![Vite](https://img.shields.io/badge/Vite-7.1.9-646CFF) ![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.4.18-38B2AC)
 
 ## 🎮 Features
 
-### 🎯 **Interactive Game Mode**
-- **Colorful Door Interface**: Each question is hidden behind a uniquely colored door
+### 🚪 **Door Quest Game**
+- **Interactive Door Interface**: Each question is hidden behind a uniquely colored door
 - **3D Door Animation**: Doors swing open with realistic perspective effects
-- **Question Reveal**: Click doors to reveal educational questions
-- **Answer Discovery**: Interactive "Reveal Answer" button with fun animations
-- **Responsive Design**: Optimized for desktop, tablet, and mobile devices
+- **Question & Answer System**: Click doors to reveal educational questions with TRUE/FALSE options
+- **Prize System**: Win prizes for correct answers!
+- **Responsive Design**: Optimized for all devices
 
-### 📚 **Question Management System**
+### 🎡 **Spin the Wheel Game**
+- **Random Selection**: Spin a colorful wheel to randomly select winners
+- **Custom Name Lists**: Add up to 34 names to your wheel
+- **Smart Tracking**: Automatically tracks selected names to prevent duplicates
+- **Beautiful Animations**: Smooth spinning animations with vibrant colors
+- **Visual Feedback**: Clear display of winner with celebration effects
+
+### 📚 **Question Management System (Door Quest)**
 - **Add New Questions**: Create custom questions with answers
 - **Edit Questions**: Modify existing questions easily
 - **Delete Questions**: Remove questions with confirmation
@@ -21,10 +28,17 @@
 - **Statistics Dashboard**: Track total questions, characters, and more
 
 ### 🎨 **Beautiful Design**
-- **Gradient Backgrounds**: Peach-to-turquoise gradient with floating door decorations
-- **Rainbow Borders**: Multi-colored borders on question modals
+- **Gradient Backgrounds**: Colorful gradients with floating decorations
+- **Animated UI**: Smooth transitions and hover effects
+- **Rainbow Borders**: Multi-colored borders on cards and modals
 - **Fun Animations**: Bouncing, floating, and fade-in effects throughout
 - **Student-Friendly UI**: Bright colors, playful typography, and engaging visuals
+
+### 🏠 **Landing Page**
+- **Game Selection**: Beautiful card-based selection screen
+- **Welcome Message**: Friendly greeting and brief descriptions
+- **Quick Navigation**: Easy access to both games from any page
+- **Consistent Design**: Matches overall app aesthetic
 
 ## 🚀 Getting Started
 
@@ -63,15 +77,33 @@ The built files will be in the `dist/` directory.
 
 ## 📱 Usage Guide
 
-### 🎮 Playing the Game
+### 🏠 Getting Started
 
-1. **Launch the Game**: Click the "▶ Play" button or use the hamburger menu
-2. **Choose a Door**: Click on any colored door to reveal a question
-3. **Read the Question**: Take your time to think about the answer
-4. **Reveal Answer**: Click "Reveal Answer" to see if you're correct
-5. **Close Door**: Click the red X button to return to the door selection
+1. **Open Game Hub**: The app opens to a beautiful landing page
+2. **Choose a Game**: Click on either "Door Quest" or "Spin the Wheel" card
+3. **Start Playing**: Each game has its own interface and features
+4. **Return to Home**: Click "Home" in the menu to return to the landing page
 
-### 📝 Managing Questions
+### 🚪 Playing Door Quest
+
+1. **Select Door Quest**: Choose from the landing page or menu
+2. **Welcome Screen**: Read the instructions (you can skip this)
+3. **Choose a Door**: Click on any colored door to reveal a question
+4. **Answer Questions**: Select TRUE or FALSE for each question
+5. **Win Prizes**: Correct answers unlock prize rewards!
+6. **Manage Questions**: Use the menu to add, edit, or delete questions
+
+### 🎡 Playing Spin the Wheel
+
+1. **Select Spin the Wheel**: Choose from the landing page or menu
+2. **View Names**: See all 34 names on the colorful wheel
+3. **Spin**: Click the center "SPIN" button
+4. **Watch It Spin**: Enjoy the smooth animation
+5. **See Winner**: The selected name is displayed with celebration
+6. **Spin Again**: Keep spinning until all names are selected
+7. **Reset**: Click "Reset & Start Over" to start fresh
+
+### 📝 Managing Questions (Door Quest)
 
 1. **Access Manager**: Click the hamburger menu (☰) and select "📚 Manage Questions"
 2. **View Statistics**: See total questions, characters, and organization stats
@@ -85,12 +117,13 @@ The built files will be in the `dist/` directory.
 ## 🏗️ Project Structure
 
 ```
-websiteactivity/
+game-hub/
 ├── src/
 │   ├── components/
 │   │   ├── Door.vue           # Individual door component with question modal
-│   │   └── QuestionManager.vue # Question management interface
-│   ├── App.vue               # Main application component
+│   │   ├── QuestionManager.vue # Question management interface
+│   │   └── SpinWheel.vue      # Spin the wheel game component
+│   ├── App.vue               # Main application with landing page
 │   ├── main.js              # Application entry point
 │   └── style.css            # Global styles and Tailwind imports
 ├── public/
@@ -180,8 +213,9 @@ websiteactivity/
 - Stress management techniques
 
 ### Customizable Content
-- Add questions for any subject
+- Add questions for any subject in Door Quest
 - True/False or multiple choice formats
+- Custom name lists for Spin the Wheel
 - Visual and interactive learning
 - Progress tracking capabilities
 

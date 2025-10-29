@@ -22,20 +22,47 @@ const props = defineProps({
 
 const isOpen = ref(false)
 const showAnswer = ref(false)
+const userSelection = ref(null) // Track user's choice: 'TRUE' or 'FALSE'
+const prizeClaimed = ref(false)
+const claimedPrize = ref(null)
+
+// 4 constant prizes
+const prizes = ['🍫 Chocolate Bar', '🍬 Candy', '🍪 Cookies', '🍭 Lollipop']
+
+const getRandomPrize = () => {
+  const randomIndex = Math.floor(Math.random() * prizes.length)
+  return prizes[randomIndex]
+}
 
 const openDoor = () => {
   if (!props.question) return
   isOpen.value = true
   showAnswer.value = false
+  userSelection.value = null
+  prizeClaimed.value = false
+  claimedPrize.value = null
 }
 
 const closeDoor = () => {
   isOpen.value = false
   showAnswer.value = false
+  userSelection.value = null
+  prizeClaimed.value = false
+  claimedPrize.value = null
 }
 
-const revealAnswer = () => {
+const selectAnswer = (choice) => {
+  userSelection.value = choice
   showAnswer.value = true
+}
+
+const isCorrect = () => {
+  return userSelection.value === props.answer
+}
+
+const claimPrize = () => {
+  prizeClaimed.value = true
+  claimedPrize.value = getRandomPrize()
 }
 
 // Helper function to darken colors
@@ -81,24 +108,65 @@ const darkenColor = (color, percent) => {
           <h2>Question {{ doorNumber }}</h2>
           <p class="question">{{ question }}</p>
           
-          <button 
-            v-if="!showAnswer" 
-            class="reveal-btn" 
-            @click="revealAnswer"
-          >
-            Reveal Answer
-          </button>
+          <!-- Selection buttons -->
+          <div v-if="!showAnswer && userSelection === null" class="selection-buttons">
+            <button class="selection-btn true-btn" @click="selectAnswer('TRUE')">
+              ✓ TRUE
+            </button>
+            <button class="selection-btn false-btn" @click="selectAnswer('FALSE')">
+              ✗ FALSE
+            </button>
+          </div>
           
+          <!-- Answer result -->
           <transition name="answer-slide">
-            <div v-if="showAnswer" class="answer-box">
-              <h3>Answer:</h3>
-              <p class="answer">{{ answer }}</p>
+            <div v-if="showAnswer" class="answer-section">
+              <!-- Show if user got it right or wrong -->
+              <div class="result-box" :class="{ 'correct': isCorrect(), 'incorrect': !isCorrect() }">
+                <div class="result-icon">{{ isCorrect() ? '🎉' : '😔' }}</div>
+                <h3 class="result-title">{{ isCorrect() ? 'Correct! Great job!' : 'Not quite! Try again next time!' }}</h3>
+                <p class="result-text">
+                  You selected: <strong>{{ userSelection }}</strong><br>
+                  Correct answer: <strong>{{ answer }}</strong>
+                </p>
+                
+                <!-- Prize claim button -->
+                <div v-if="isCorrect()" class="prize-section">
+                  <button 
+                    v-if="!prizeClaimed" 
+                    class="claim-btn" 
+                    @click="claimPrize"
+                  >
+                    🎁 Claim Your Prize!
+                  </button>
+                </div>
+              </div>
             </div>
           </transition>
         </div>
       </div>
     </transition>
   </div>
+  
+  <!-- Prize Popup Modal -->
+  <transition name="modal-fade">
+    <div v-if="prizeClaimed" class="prize-modal-overlay" @click="prizeClaimed = false">
+      <div class="prize-modal" @click.stop>
+        <button class="modal-close-btn" @click="prizeClaimed = false">✕</button>
+        <div class="prize-modal-content">
+          <div class="prize-emoji-large">🎉</div>
+          <h2 class="prize-modal-title">Congratulations!</h2>
+          <p class="prize-modal-subtitle">You won a prize!</p>
+          <div class="prize-modal-box">
+            <p class="prize-modal-name">{{ claimedPrize }}</p>
+          </div>
+          <button class="prize-modal-button" @click="prizeClaimed = false">
+            Awesome!
+          </button>
+        </div>
+      </div>
+    </div>
+  </transition>
 </template>
 
 <style scoped>
@@ -352,7 +420,7 @@ const darkenColor = (color, percent) => {
   left: 50%;
   transform: translate(-50%, -50%);
   background: #4CAF50;
-  padding: 6px;
+  padding: 10px;
   border-radius: 24px;
   box-shadow: 
     0 25px 80px rgba(0, 0, 0, 0.3),
@@ -361,12 +429,12 @@ const darkenColor = (color, percent) => {
     0 0 0 12px #2196F3;
   max-width: 650px;
   width: 90%;
-  max-height: 90vh;
+  max-height: 95vh;
   z-index: 1000;
   color: white;
-  overflow: hidden;
   overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -424,11 +492,13 @@ const darkenColor = (color, percent) => {
 
 .question-content {
   text-align: center;
-  padding: 40px;
+  padding: 30px 20px;
   background: #FFFFFF;
   border-radius: 20px;
   color: #333333;
   border: 3px solid #FFEB3B;
+  box-sizing: border-box;
+  min-height: fit-content;
 }
 
 .question-content h2 {
@@ -438,13 +508,14 @@ const darkenColor = (color, percent) => {
   font-weight: 900;
   text-shadow: 3px 3px 0px #FF9800, 6px 6px 0px #2196F3;
   animation: title-wiggle 2s ease-in-out infinite;
+  word-wrap: break-word;
 }
 
 .question {
   font-size: 26px;
   line-height: 1.7;
-  margin: 35px 0;
-  padding: 30px;
+  margin: 25px 0;
+  padding: 25px 20px;
   background: #FFF3E0;
   border-radius: 20px;
   border: 5px solid #FF5722;
@@ -453,8 +524,10 @@ const darkenColor = (color, percent) => {
     0 15px 35px rgba(255, 87, 34, 0.4),
     inset 0 3px 0 #FFFFFF;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   animation: question-shake 4s ease-in-out infinite;
+  word-wrap: break-word;
+  box-sizing: border-box;
 }
 
 .question::before {
@@ -544,8 +617,8 @@ const darkenColor = (color, percent) => {
 }
 
 .answer-box {
-  margin-top: 35px;
-  padding: 30px;
+  margin-top: 25px;
+  padding: 20px;
   background: #E8F5E8;
   border-radius: 20px;
   border: 5px solid #4CAF50;
@@ -553,17 +626,20 @@ const darkenColor = (color, percent) => {
     0 15px 35px rgba(76, 175, 80, 0.4),
     inset 0 3px 0 rgba(255, 255, 255, 0.8);
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   animation: answer-celebration 3s ease-in-out infinite;
+  box-sizing: border-box;
+  word-wrap: break-word;
 }
 
 .answer-box::before {
   content: '🎊';
   position: absolute;
-  top: 15px;
-  right: 20px;
-  font-size: 32px;
+  top: 10px;
+  right: 15px;
+  font-size: 28px;
   animation: confetti 2s infinite;
+  z-index: 1;
 }
 
 .answer-box h3 {
@@ -573,6 +649,7 @@ const darkenColor = (color, percent) => {
   font-weight: 900;
   text-shadow: 2px 2px 0px #FFD54F, 4px 4px 0px #FF5722;
   animation: success-dance 2s ease-in-out infinite;
+  word-wrap: break-word;
 }
 
 .answer {
@@ -581,13 +658,215 @@ const darkenColor = (color, percent) => {
   color: #1B5E20;
   font-weight: 700;
   background: #FFFFFF;
-  padding: 25px;
+  padding: 20px;
   border-radius: 16px;
   box-shadow: 
     inset 0 3px 6px rgba(0, 0, 0, 0.1),
     0 6px 12px rgba(0, 0, 0, 0.1);
   border-left: 8px solid #4CAF50;
   animation: answer-highlight 2s ease-in-out infinite;
+  word-wrap: break-word;
+  box-sizing: border-box;
+}
+
+/* Selection Buttons */
+.selection-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin: 25px 0;
+  flex-wrap: wrap;
+  padding: 0 10px;
+  box-sizing: border-box;
+}
+
+.selection-btn {
+  flex: 1;
+  min-width: 150px;
+  max-width: 250px;
+  padding: 25px 40px;
+  border-radius: 20px;
+  font-size: 28px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  border: none;
+  /* Improve touch feedback */
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0.3);
+  touch-action: manipulation;
+  min-height: 70px;
+}
+
+.true-btn {
+  background: #4CAF50;
+  color: white;
+  border: 5px solid #2E7D32;
+}
+
+.true-btn:hover {
+  background: #45a049;
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 15px 35px rgba(76, 175, 80, 0.6);
+}
+
+.false-btn {
+  background: #F44336;
+  color: white;
+  border: 5px solid #C62828;
+}
+
+.false-btn:hover {
+  background: #d32f2f;
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 15px 35px rgba(244, 67, 54, 0.6);
+}
+
+/* Answer Section */
+.answer-section {
+  animation: answer-celebration 3s ease-in-out infinite;
+}
+
+.result-box {
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 20px;
+  border: 5px solid;
+  box-shadow: 
+    0 15px 35px rgba(0, 0, 0, 0.3),
+    inset 0 3px 0 rgba(255, 255, 255, 0.8);
+  position: relative;
+  overflow: visible;
+  animation: result-celebration 2s ease-in-out infinite;
+  box-sizing: border-box;
+  word-wrap: break-word;
+}
+
+.result-box.correct {
+  background: #E8F5E8;
+  border-color: #4CAF50;
+}
+
+.result-box.incorrect {
+  background: #FFEBEE;
+  border-color: #F44336;
+}
+
+.result-icon {
+  font-size: 60px;
+  text-align: center;
+  margin-bottom: 15px;
+  animation: icon-bounce 2s ease-in-out infinite;
+  line-height: 1;
+}
+
+.result-title {
+  font-size: 28px;
+  font-weight: 900;
+  text-align: center;
+  margin-bottom: 15px;
+  text-shadow: 2px 2px 0px white, 4px 4px 0px rgba(0, 0, 0, 0.2);
+  word-wrap: break-word;
+}
+
+.result-box.correct .result-title {
+  color: #2E7D32;
+}
+
+.result-box.incorrect .result-title {
+  color: #C62828;
+}
+
+.result-text {
+  font-size: 18px;
+  line-height: 1.7;
+  text-align: center;
+  color: #333;
+  font-weight: 600;
+  word-wrap: break-word;
+  padding: 0 10px;
+}
+
+.result-text strong {
+  font-size: 20px;
+  padding: 5px 15px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Prize Claim Button Section */
+.prize-section {
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 3px dashed rgba(255, 215, 0, 0.5);
+}
+
+.claim-btn {
+  width: 100%;
+  padding: 20px;
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #2c3e50;
+  border: 4px solid #FF5722;
+  border-radius: 20px;
+  font-size: 22px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 
+    0 10px 30px rgba(255, 215, 0, 0.6),
+    inset 0 3px 0 rgba(255, 255, 255, 0.4);
+  /* Improve touch feedback */
+  -webkit-tap-highlight-color: rgba(255, 193, 7, 0.3);
+  touch-action: manipulation;
+  min-height: 70px;
+  animation: claim-pulse 2s ease-in-out infinite;
+}
+
+@keyframes claim-pulse {
+  0%, 100% { 
+    transform: scale(1);
+    box-shadow: 
+      0 10px 30px rgba(255, 215, 0, 0.6),
+      inset 0 3px 0 rgba(255, 255, 255, 0.4);
+  }
+  50% { 
+    transform: scale(1.05);
+    box-shadow: 
+      0 15px 40px rgba(255, 215, 0, 0.8),
+      inset 0 3px 0 rgba(255, 255, 255, 0.5);
+  }
+}
+
+.claim-btn:hover {
+  background: linear-gradient(135deg, #FFA500, #FFD700);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 
+    0 15px 40px rgba(255, 215, 0, 0.8),
+    inset 0 3px 0 rgba(255, 255, 255, 0.5);
+}
+
+.claim-btn:active {
+  transform: translateY(-1px) scale(1.02);
+}
+
+@keyframes prize-celebration {
+  0%, 100% { 
+    border-color: #FF5722;
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+  }
+  50% { 
+    border-color: #FF9800;
+    background: linear-gradient(135deg, #FFA500, #FFD700);
+  }
 }
 
 /* Animations */
@@ -617,6 +896,20 @@ const darkenColor = (color, percent) => {
 .answer-slide-leave-to {
   opacity: 0;
   transform: translateY(-20px);
+}
+
+.prize-slide-enter-active, .prize-slide-leave-active {
+  transition: all 0.5s ease;
+}
+
+.prize-slide-enter-from {
+  opacity: 0;
+  transform: scale(0.8) translateY(20px);
+}
+
+.prize-slide-leave-to {
+  opacity: 0;
+  transform: scale(0.8) translateY(-20px);
 }
 
 /* Overlay */
@@ -691,6 +984,16 @@ const darkenColor = (color, percent) => {
 @keyframes close-spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+@keyframes result-celebration {
+  0%, 100% { border-color: currentColor; }
+  50% { border-color: currentColor; filter: brightness(1.2); }
+}
+
+@keyframes icon-bounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-10px) scale(1.1); }
 }
 
 /* Mobile Responsive Styles for Door Component */
@@ -769,24 +1072,25 @@ const darkenColor = (color, percent) => {
   .question-panel {
     max-width: 96%;
     width: 96%;
-    padding: 12px;
+    padding: 8px;
     border-radius: 18px;
     margin: 8px;
     box-sizing: border-box;
     max-height: 95vh;
     overflow-y: auto;
+    overflow-x: hidden;
   }
   
   .close-btn {
-    top: 15px;
-    right: 15px;
+    top: 12px;
+    right: 12px;
     width: 40px;
     height: 40px;
     font-size: 20px;
   }
   
   .question-content {
-    padding: 18px 12px;
+    padding: 20px 15px;
     border-radius: 15px;
     margin: 0;
   }
@@ -799,8 +1103,9 @@ const darkenColor = (color, percent) => {
   .question {
     font-size: 16px;
     padding: 16px;
-    margin: 18px 0;
+    margin: 15px 0;
     line-height: 1.4;
+    overflow: visible;
   }
   
   .question::after {
@@ -809,18 +1114,63 @@ const darkenColor = (color, percent) => {
     right: 15px;
   }
   
-  .reveal-btn {
-    padding: 14px 20px;
-    font-size: 16px;
-    width: 100%;
-    max-width: 260px;
-    margin: 0 auto;
-    min-height: 50px;
+  /* Selection buttons mobile */
+  .selection-buttons {
+    gap: 15px;
+    margin: 20px 0;
+    padding: 0 5px;
   }
   
-  .reveal-btn::after {
+  .selection-btn {
+    min-width: 120px;
+    max-width: 200px;
+    padding: 18px 30px;
     font-size: 20px;
-    right: 10px;
+    min-height: 60px;
+  }
+  
+  /* Answer result mobile */
+  .answer-box {
+    margin-top: 15px;
+    padding: 15px;
+  }
+  
+  .result-box {
+    margin-top: 15px;
+    padding: 15px;
+  }
+  
+  .result-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+    line-height: 1;
+  }
+  
+  .result-title {
+    font-size: 22px;
+    margin-bottom: 12px;
+  }
+  
+  .result-text {
+    font-size: 16px;
+    padding: 0 8px;
+  }
+  
+  .result-text strong {
+    font-size: 18px;
+    padding: 4px 12px;
+  }
+  
+  /* Prize section mobile */
+  .prize-section {
+    margin-top: 20px;
+    padding-top: 15px;
+  }
+  
+  .claim-btn {
+    padding: 18px;
+    font-size: 18px;
+    min-height: 60px;
   }
   
   .answer-box {
@@ -839,9 +1189,15 @@ const darkenColor = (color, percent) => {
     margin-bottom: 15px;
   }
   
+  .answer-box::before {
+    font-size: 24px;
+    top: 8px;
+    right: 12px;
+  }
+  
   .answer {
     font-size: 18px;
-    padding: 20px;
+    padding: 15px;
   }
 }
 
@@ -884,12 +1240,13 @@ const darkenColor = (color, percent) => {
   .question-panel {
     max-width: 98%;
     width: 98%;
-    padding: 8px;
+    padding: 6px;
     border-radius: 15px;
     margin: 4px;
     box-sizing: border-box;
     max-height: 96vh;
     overflow-y: auto;
+    overflow-x: hidden;
   }
   
   .close-btn {
@@ -901,7 +1258,7 @@ const darkenColor = (color, percent) => {
   }
   
   .question-content {
-    padding: 14px 10px;
+    padding: 18px 12px;
     border-radius: 12px;
     margin: 0;
   }
@@ -914,7 +1271,17 @@ const darkenColor = (color, percent) => {
   .question {
     font-size: 16px;
     padding: 15px;
-    margin: 20px 0;
+    margin: 15px 0;
+  }
+  
+  .answer-box {
+    margin-top: 12px;
+    padding: 12px;
+  }
+  
+  .result-box {
+    margin-top: 12px;
+    padding: 12px;
   }
   
   .question::after {
@@ -923,18 +1290,63 @@ const darkenColor = (color, percent) => {
     right: 12px;
   }
   
-  .reveal-btn {
-    padding: 12px 20px;
-    font-size: 15px;
-    width: 100%;
-    max-width: 240px;
-    margin: 0 auto;
-    min-height: 48px;
+  /* Selection buttons small mobile */
+  .selection-buttons {
+    gap: 10px;
+    margin: 15px 0;
   }
   
-  .reveal-btn::after {
+  .selection-btn {
+    min-width: 100px;
+    max-width: 180px;
+    padding: 15px 25px;
     font-size: 18px;
-    right: 8px;
+    min-height: 55px;
+  }
+  
+  /* Answer result small mobile */
+  .result-box {
+    margin-top: 15px;
+    padding: 18px;
+  }
+  
+  .result-icon {
+    font-size: 40px;
+    margin-bottom: 10px;
+    line-height: 1;
+  }
+  
+  .result-title {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+  
+  .result-text {
+    font-size: 14px;
+    padding: 0 6px;
+  }
+  
+  .result-text strong {
+    font-size: 16px;
+    padding: 3px 10px;
+  }
+  
+  .answer-box::before {
+    font-size: 20px;
+    top: 6px;
+    right: 10px;
+  }
+  
+  /* Prize section small mobile */
+  .prize-section {
+    margin-top: 15px;
+    padding-top: 12px;
+  }
+  
+  .claim-btn {
+    padding: 15px;
+    font-size: 16px;
+    min-height: 55px;
   }
   
   .answer-box {
@@ -1025,6 +1437,7 @@ const darkenColor = (color, percent) => {
     box-sizing: border-box;
     max-height: 98vh;
     overflow-y: auto;
+    overflow-x: hidden;
   }
   
   .close-btn {
@@ -1058,18 +1471,43 @@ const darkenColor = (color, percent) => {
     right: 10px;
   }
   
-  .reveal-btn {
-    padding: 10px 16px;
-    font-size: 14px;
-    width: 100%;
-    max-width: 220px;
-    margin: 0 auto;
-    min-height: 44px;
+  /* Selection buttons ultra small mobile */
+  .selection-buttons {
+    gap: 8px;
+    margin: 12px 0;
   }
   
-  .reveal-btn::after {
+  .selection-btn {
+    min-width: 90px;
+    max-width: 160px;
+    padding: 12px 20px;
     font-size: 16px;
-    right: 6px;
+    min-height: 50px;
+  }
+  
+  /* Answer result ultra small mobile */
+  .result-box {
+    margin-top: 12px;
+    padding: 15px;
+  }
+  
+  .result-icon {
+    font-size: 36px;
+    margin-bottom: 8px;
+  }
+  
+  .result-title {
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+  
+  .result-text {
+    font-size: 13px;
+  }
+  
+  .result-text strong {
+    font-size: 15px;
+    padding: 3px 8px;
   }
   
   .answer-box {
@@ -1091,6 +1529,29 @@ const darkenColor = (color, percent) => {
   .answer {
     font-size: 14px;
     padding: 12px;
+  }
+  
+  /* Prize section ultra small mobile */
+  .prize-section {
+    margin-top: 12px;
+    padding-top: 10px;
+  }
+  
+  .claim-btn {
+    padding: 12px;
+    font-size: 14px;
+    min-height: 50px;
+    letter-spacing: 1px;
+  }
+  
+  .answer-box {
+    margin-top: 10px;
+    padding: 10px;
+  }
+  
+  .result-box {
+    margin-top: 10px;
+    padding: 10px;
   }
 }
 
@@ -1114,13 +1575,30 @@ const darkenColor = (color, percent) => {
   
   /* Question panel in landscape */
   .question-panel {
-    max-height: 90vh;
+    max-height: 95vh;
     width: 95%;
     max-width: 85%;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
   
   .question-content {
-    padding: 15px 20px;
+    padding: 20px 15px;
+  }
+  
+  .question {
+    padding: 15px;
+    margin: 15px 0;
+  }
+  
+  .answer-box {
+    margin-top: 15px;
+    padding: 15px;
+  }
+  
+  .result-box {
+    margin-top: 15px;
+    padding: 15px;
   }
   
   .question-content h2 {
@@ -1138,25 +1616,55 @@ const darkenColor = (color, percent) => {
     font-size: 28px;
   }
   
-  .reveal-btn {
-    padding: 12px 30px;
-    font-size: 16px;
-    min-height: 48px;
+  /* Selection buttons landscape */
+  .selection-buttons {
+    gap: 12px;
+    margin: 15px 0;
   }
   
-  .answer-box {
-    margin-top: 15px;
-    padding: 15px;
-  }
-  
-  .answer-box h3 {
+  .selection-btn {
+    min-width: 110px;
+    max-width: 170px;
+    padding: 14px 25px;
     font-size: 18px;
+    min-height: 52px;
+  }
+  
+  /* Answer result landscape */
+  .result-box {
+    margin-top: 15px;
+    padding: 18px;
+  }
+  
+  .result-icon {
+    font-size: 44px;
     margin-bottom: 10px;
   }
   
-  .answer {
-    font-size: 14px;
-    padding: 12px;
+  .result-title {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+  
+  .result-text {
+    font-size: 15px;
+  }
+  
+  .result-text strong {
+    font-size: 17px;
+    padding: 3px 10px;
+  }
+  
+  /* Prize section landscape */
+  .prize-section {
+    margin-top: 15px;
+    padding-top: 15px;
+  }
+  
+  .claim-btn {
+    padding: 15px;
+    font-size: 18px;
+    min-height: 56px;
   }
   
   .close-btn {
@@ -1170,8 +1678,12 @@ const darkenColor = (color, percent) => {
 
 /* Touch device optimizations */
 @media (hover: none) and (pointer: coarse) {
-  .reveal-btn:active {
+  .selection-btn:active {
     transform: translateY(-2px) scale(1.05);
+  }
+  
+  .claim-btn:active {
+    transform: translateY(-1px) scale(1.02);
   }
   
   .close-btn:active {
@@ -1179,8 +1691,21 @@ const darkenColor = (color, percent) => {
   }
   
   /* Remove hover effects on touch devices */
-  .reveal-btn:hover {
-    transform: translateY(0);
+  .selection-btn:hover {
+    transform: none;
+  }
+  
+  .claim-btn:hover {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    transform: none;
+  }
+  
+  .true-btn:hover {
+    background: #4CAF50;
+  }
+  
+  .false-btn:hover {
+    background: #F44336;
   }
   
   .door-front:hover .door-handle {
@@ -1191,6 +1716,297 @@ const darkenColor = (color, percent) => {
     box-shadow: 
       inset 0 2px 4px rgba(0, 0, 0, 0.8),
       0 1px 2px rgba(255, 215, 0, 0.2);
+  }
+}
+
+/* Prize Modal Popup */
+.prize-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: overlay-fade 0.3s ease;
+}
+
+.prize-modal {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 30px;
+  padding: 10px;
+  max-width: 500px;
+  width: 90%;
+  position: relative;
+  box-shadow: 
+    0 30px 80px rgba(0, 0, 0, 0.4),
+    0 0 0 4px #FFD700,
+    0 0 0 8px #FF9800,
+    0 0 0 12px #E91E63;
+  animation: modal-zoom 0.4s ease;
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: #F44336;
+  color: white;
+  border: 3px solid #FFD54F;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 
+    0 8px 20px rgba(244, 67, 54, 0.5),
+    inset 0 3px 0 rgba(255, 255, 255, 0.3);
+  z-index: 10;
+}
+
+.modal-close-btn:hover {
+  background: #D32F2F;
+  border-color: #FFEB3B;
+  transform: rotate(90deg) scale(1.1);
+  box-shadow: 
+    0 10px 25px rgba(244, 67, 54, 0.7),
+    inset 0 3px 0 rgba(255, 255, 255, 0.4);
+}
+
+.prize-modal-content {
+  background: white;
+  border-radius: 25px;
+  padding: 50px 30px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.prize-emoji-large {
+  font-size: 120px;
+  margin-bottom: 20px;
+  animation: emoji-celebration 2s ease-in-out infinite;
+}
+
+@keyframes emoji-celebration {
+  0%, 100% { 
+    transform: translateY(0) scale(1) rotate(0deg); 
+  }
+  25% { 
+    transform: translateY(-15px) scale(1.1) rotate(-10deg); 
+  }
+  75% { 
+    transform: translateY(-15px) scale(1.1) rotate(10deg); 
+  }
+}
+
+.prize-modal-title {
+  font-size: 42px;
+  font-weight: 900;
+  color: #E91E63;
+  margin-bottom: 10px;
+  text-shadow: 2px 2px 0px #FF9800, 4px 4px 0px #2196F3;
+  animation: title-wiggle 2s ease-in-out infinite;
+}
+
+.prize-modal-subtitle {
+  font-size: 20px;
+  color: #666;
+  margin-bottom: 30px;
+  font-weight: 600;
+}
+
+.prize-modal-box {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  border-radius: 20px;
+  padding: 30px;
+  margin: 0 auto 30px;
+  border: 5px solid #FF5722;
+  box-shadow: 
+    0 15px 40px rgba(255, 215, 0, 0.5),
+    inset 0 3px 0 rgba(255, 255, 255, 0.4);
+  max-width: 400px;
+  animation: prize-celebration 2s ease-in-out infinite;
+}
+
+.prize-modal-name {
+  font-size: 36px;
+  font-weight: 900;
+  color: #2c3e50;
+  margin: 0;
+  text-shadow: 2px 2px 0px white;
+  animation: prize-sparkle 1.5s ease-in-out infinite;
+}
+
+@keyframes prize-sparkle {
+  0%, 100% { 
+    transform: scale(1);
+  }
+  50% { 
+    transform: scale(1.05);
+  }
+}
+
+.prize-modal-button {
+  width: 100%;
+  padding: 20px;
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: white;
+  border: 4px solid #2E7D32;
+  border-radius: 20px;
+  font-size: 24px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  box-shadow: 
+    0 10px 30px rgba(76, 175, 80, 0.5),
+    inset 0 3px 0 rgba(255, 255, 255, 0.3);
+  min-height: 70px;
+}
+
+.prize-modal-button:hover {
+  background: linear-gradient(135deg, #45a049, #4CAF50);
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 
+    0 15px 40px rgba(76, 175, 80, 0.7),
+    inset 0 3px 0 rgba(255, 255, 255, 0.4);
+}
+
+.prize-modal-button:active {
+  transform: translateY(-2px) scale(1.02);
+}
+
+@keyframes overlay-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modal-zoom {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modal-fade-enter-active, .modal-fade-leave-active {
+  transition: all 0.3s ease;
+}
+
+.modal-fade-enter-from {
+  opacity: 0;
+}
+
+.modal-fade-leave-to {
+  opacity: 0;
+}
+
+/* Prize Modal Responsive */
+@media (max-width: 768px) {
+  .prize-modal {
+    max-width: 90%;
+    padding: 8px;
+  }
+  
+  .modal-close-btn {
+    top: 12px;
+    right: 12px;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+  
+  .prize-modal-content {
+    padding: 40px 20px;
+  }
+  
+  .prize-emoji-large {
+    font-size: 100px;
+    margin-bottom: 15px;
+  }
+  
+  .prize-modal-title {
+    font-size: 36px;
+  }
+  
+  .prize-modal-subtitle {
+    font-size: 18px;
+  }
+  
+  .prize-modal-box {
+    padding: 25px;
+    max-width: 100%;
+  }
+  
+  .prize-modal-name {
+    font-size: 28px;
+  }
+  
+  .prize-modal-button {
+    padding: 18px;
+    font-size: 20px;
+    min-height: 60px;
+  }
+}
+
+@media (max-width: 480px) {
+  .prize-modal {
+    max-width: 95%;
+    padding: 6px;
+  }
+  
+  .modal-close-btn {
+    top: 10px;
+    right: 10px;
+    width: 35px;
+    height: 35px;
+    font-size: 18px;
+  }
+  
+  .prize-modal-content {
+    padding: 30px 15px;
+  }
+  
+  .prize-emoji-large {
+    font-size: 80px;
+    margin-bottom: 12px;
+  }
+  
+  .prize-modal-title {
+    font-size: 28px;
+  }
+  
+  .prize-modal-subtitle {
+    font-size: 16px;
+    margin-bottom: 20px;
+  }
+  
+  .prize-modal-box {
+    padding: 20px;
+    margin-bottom: 25px;
+  }
+  
+  .prize-modal-name {
+    font-size: 24px;
+  }
+  
+  .prize-modal-button {
+    padding: 16px;
+    font-size: 18px;
+    min-height: 56px;
   }
 }
 
