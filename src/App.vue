@@ -5,6 +5,7 @@ import QuestionManager from './components/QuestionManager.vue'
 import SpinWheel from './components/SpinWheel.vue'
 import QuizCard from './components/QuizCard.vue'
 import DragMatch from './components/DragMatch.vue'
+import BalloonPicker from './components/BalloonPicker.vue'
 
 const currentPage = ref('landing')
 const showMenu = ref(false)
@@ -15,28 +16,24 @@ const questions = ref([
   {
     id: 1,
     question: 'Respecting others helps build strong relationships.',
-    answer: 'TRUE'
+    answer: 'FACT'
   },
   {
     id: 2,
     question: 'Skipping breakfast gives you more energy for the day.',
-    answer: 'FALSE'
+    answer: 'BLUFF'
   },
   {
     id: 3,
     question: 'Talking about your feelings can help reduce stress.',
-    answer: 'TRUE'
+    answer: 'FACT'
   },
   {
     id: 4,
-    question: '. Watching TV for long hours improves your physical fitness.',
-    answer: 'FALSE'
+    question: 'Watching TV for long hours improves your physical fitness.',
+    answer: 'BLUFF'
   },
-  {
-    id: 5,
-    question: 'Getting enough sleep helps your body recover and stay healthy.',
-    answer: 'TRUE'
-  },
+  
   
 ])
 
@@ -64,8 +61,8 @@ const quizQuestions = ref([
   {
     id: 4,
     question: 'It means finding purpose and inner peace in life through faith, beliefs, or values.',
-    options: ['Spiritual Health', 'Mental Health', 'Emotional Health', 'Physical Health'],
-    correctAnswer: 'Spiritual Health'
+    options: ['Physical Health', 'Mental Health', 'Emotional Health', 'Physical Health'],
+    correctAnswer: 'Physical Health'
   },
   {
     id: 5,
@@ -164,6 +161,15 @@ const startDragMatch = () => {
 const goToDragMatch = () => {
   showMenu.value = false
   currentPage.value = 'dragmatch'
+}
+
+const startBalloonPicker = () => {
+  currentPage.value = 'balloonpicker'
+}
+
+const goToBalloonPicker = () => {
+  showMenu.value = false
+  currentPage.value = 'balloonpicker'
 }
 
 const updateQuestions = (updatedQuestions) => {
@@ -282,6 +288,19 @@ const startGame = () => {
             <span class="btn-text">Play Now</span>
           </button>
         </div>
+
+        <!-- Balloon Picker Card -->
+        <div class="game-card" @click="startBalloonPicker">
+          <div class="game-icon balloon-icon">🎈</div>
+          <h2 class="game-title">BALLOON PICKER</h2>
+          <p class="game-description">
+            Click on colorful balloons to reveal the hidden names inside! Just like a random name picker!
+          </p>
+          <button class="play-button">
+            <span class="btn-icon">▶️</span>
+            <span class="btn-text">Play Now</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -322,6 +341,9 @@ const startGame = () => {
             </button>
             <button class="dropdown-item" @click="goToDragMatch">
               🎯 Drag & Match
+            </button>
+            <button class="dropdown-item" @click="goToBalloonPicker">
+              🎈 Balloon Picker
             </button>
           </div>
         </div>
@@ -433,6 +455,10 @@ const startGame = () => {
 
     <div v-else-if="currentPage === 'dragmatch'" class="dragmatch-page">
       <DragMatch @goToGame="goToLanding" />
+    </div>
+
+    <div v-else-if="currentPage === 'balloonpicker'" class="balloonpicker-page">
+      <BalloonPicker @goToGame="goToLanding" />
     </div>
   </div>
 </template>
@@ -744,6 +770,12 @@ const startGame = () => {
 .quiz-page {
   height: 100dvh;
   overflow: hidden;
+}
+
+.balloonpicker-page {
+  min-height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /* Background Animations */
@@ -1849,6 +1881,15 @@ const startGame = () => {
 @keyframes icon-quiz-float {
   0%, 100% { transform: translateY(0) scale(1); }
   50% { transform: translateY(-12px) scale(1.1); }
+}
+
+.balloon-icon {
+  animation: icon-balloon-float 2.8s ease-in-out infinite;
+}
+
+@keyframes icon-balloon-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(10deg); }
 }
 
 .game-title {

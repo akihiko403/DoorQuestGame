@@ -22,9 +22,10 @@ const props = defineProps({
 
 const isOpen = ref(false)
 const showAnswer = ref(false)
-const userSelection = ref(null) // Track user's choice: 'TRUE' or 'FALSE'
+const userSelection = ref(null) // Track user's choice: 'FACT' or 'BLUFF'
 const prizeClaimed = ref(false)
 const claimedPrize = ref(null)
+const showPrize = ref(false)
 
 // 4 constant prizes
 const prizes = ['🍫 Chocolate Bar', '🍬 Candy', '🍪 Cookies', '🍭 Lollipop']
@@ -41,6 +42,7 @@ const openDoor = () => {
   userSelection.value = null
   prizeClaimed.value = false
   claimedPrize.value = null
+  showPrize.value = false
 }
 
 const closeDoor = () => {
@@ -49,11 +51,14 @@ const closeDoor = () => {
   userSelection.value = null
   prizeClaimed.value = false
   claimedPrize.value = null
+  showPrize.value = false
 }
 
 const selectAnswer = (choice) => {
   userSelection.value = choice
   showAnswer.value = true
+  // Don't show prize automatically - user needs to claim it
+  showPrize.value = false
 }
 
 const isCorrect = () => {
@@ -110,11 +115,11 @@ const darkenColor = (color, percent) => {
           
           <!-- Selection buttons -->
           <div v-if="!showAnswer && userSelection === null" class="selection-buttons">
-            <button class="selection-btn true-btn" @click="selectAnswer('TRUE')">
-              ✓ TRUE
+            <button class="selection-btn fact-btn" @click="selectAnswer('FACT')">
+              🟢 FACT (Green Flag)
             </button>
-            <button class="selection-btn false-btn" @click="selectAnswer('FALSE')">
-              ✗ FALSE
+            <button class="selection-btn bluff-btn" @click="selectAnswer('BLUFF')">
+              🔴 BLUFF (Red Flag)
             </button>
           </div>
           
@@ -124,20 +129,16 @@ const darkenColor = (color, percent) => {
               <!-- Show if user got it right or wrong -->
               <div class="result-box" :class="{ 'correct': isCorrect(), 'incorrect': !isCorrect() }">
                 <div class="result-icon">{{ isCorrect() ? '🎉' : '😔' }}</div>
-                <h3 class="result-title">{{ isCorrect() ? 'Correct! Great job!' : 'Not quite! Try again next time!' }}</h3>
+                <h3 class="result-title">{{ isCorrect() ? 'Correct! Great job!' : 'Not quite! The correct answer is below.' }}</h3>
                 <p class="result-text">
-                  You selected: <strong>{{ userSelection }}</strong><br>
+                  Student selected: <strong>{{ userSelection }}</strong><br>
                   Correct answer: <strong>{{ answer }}</strong>
                 </p>
                 
-                <!-- Prize claim button -->
+                <!-- Claim Prize Button (only shown when answer is correct) -->
                 <div v-if="isCorrect()" class="prize-section">
-                  <button 
-                    v-if="!prizeClaimed" 
-                    class="claim-btn" 
-                    @click="claimPrize"
-                  >
-                    🎁 Claim Your Prize!
+                  <button class="claim-btn" @click="claimPrize">
+                    🎁 Claim Your Prize
                   </button>
                 </div>
               </div>
@@ -702,25 +703,25 @@ const darkenColor = (color, percent) => {
   min-height: 70px;
 }
 
-.true-btn {
+.fact-btn {
   background: #4CAF50;
   color: white;
   border: 5px solid #2E7D32;
 }
 
-.true-btn:hover {
+.fact-btn:hover {
   background: #45a049;
   transform: translateY(-5px) scale(1.05);
   box-shadow: 0 15px 35px rgba(76, 175, 80, 0.6);
 }
 
-.false-btn {
+.bluff-btn {
   background: #F44336;
   color: white;
   border: 5px solid #C62828;
 }
 
-.false-btn:hover {
+.bluff-btn:hover {
   background: #d32f2f;
   transform: translateY(-5px) scale(1.05);
   box-shadow: 0 15px 35px rgba(244, 67, 54, 0.6);
@@ -799,11 +800,33 @@ const darkenColor = (color, percent) => {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* Prize Claim Button Section */
+/* Prize Section */
 .prize-section {
   margin-top: 25px;
   padding-top: 20px;
   border-top: 3px dashed rgba(255, 215, 0, 0.5);
+}
+
+.prize-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  padding: 20px;
+  background: linear-gradient(135deg, #FFF9E6, #FFE4B5);
+  border-radius: 16px;
+  border: 3px solid #FFD700;
+}
+
+.prize-icon {
+  font-size: 48px;
+}
+
+.prize-text {
+  font-size: 24px;
+  font-weight: 800;
+  color: #FF9800;
+  text-shadow: 2px 2px 0px white;
 }
 
 .claim-btn {
@@ -1700,11 +1723,11 @@ const darkenColor = (color, percent) => {
     transform: none;
   }
   
-  .true-btn:hover {
+  .fact-btn:hover {
     background: #4CAF50;
   }
   
-  .false-btn:hover {
+  .bluff-btn:hover {
     background: #F44336;
   }
   

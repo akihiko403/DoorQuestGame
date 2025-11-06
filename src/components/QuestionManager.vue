@@ -78,11 +78,11 @@
           <div class="form-group">
             <label class="form-label">
               <span class="label-icon">✔️</span>
-              Answer
+              Correct Answer (FACT or BLUFF)
             </label>
               <textarea
                 v-model="form.answer"
-                placeholder="Enter the correct answer..."
+                placeholder="Enter FACT or BLUFF..."
                 rows="3"
               class="form-textarea"
                 required
