@@ -61,7 +61,7 @@ const quizQuestions = ref([
   {
     id: 4,
     question: 'It means finding purpose and inner peace in life through faith, beliefs, or values.',
-    options: ['Physical Health', 'Mental Health', 'Emotional Health', 'Physical Health'],
+    options: ['Physical Health', 'Mental Health', 'Emotional Health', 'Social Health'],
     correctAnswer: 'Physical Health'
   },
   {
